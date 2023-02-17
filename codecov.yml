@@ -1,0 +1,7 @@
+ignore:
+  - "**/*.module.ts"
+  - "**/*.config.ts"
+  - "main.ts"
+  - "prisma"
+  - "data-ingestion"
+  - interfaces

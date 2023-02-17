@@ -1,0 +1,19 @@
+{
+  "Programme": "programme_name",
+  "Course Title": "course_name",
+  "Course Code": "course_code",
+  "Course Fee": "course_fees",
+  "Days / Run": "days_per_run",
+  "Runs / FY": "runs_per_year",
+  "Start Time": "start_time",
+  "End Time": "end_time",
+  "Mode of Delivery": "delivery_mode",
+  "Days To Avoid": "days_to_avoid",
+  "Avoid Month Start?": "avoid_month_start",
+  "Avoid Month End?": "avoid_month_end",
+  "Split": "split",
+  "Start Date": "start_date",
+  "Dates": "dates",
+  "Generate?": "to_generate",
+  "Trainer Names": "trainers"
+}

@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  projectplanner:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    depends_on:
+      - test-db
+      # - dev-db
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    # to only be executed after docker container is created
+    command: yarn start:dev:migrate:projectplanner
+
+  test-db:
+    image: postgres:13
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: projectplanner
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  # dev-db:
+  #   image: postgres:13
+  #   restart: always
+  #   ports:
+  #     - 5433:5432
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: projectplanner
+  # volumes:
+  #     - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
+    driver: local
