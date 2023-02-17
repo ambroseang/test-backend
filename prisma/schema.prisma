@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  GENERATED
+  REVIEWED
+  PENDING
+  ACCEPTED
+  DECLINED
+  CONFIRMED
+  CANCELLED
+}
+
+enum Role {
+  PM
+  TRAINER
+}
+
+enum DeliveryMode {
+  F2F
+  ONLINE
+}
+
+model FiscalYear {
+  fy String @id @unique
+  revenue_target Float?
+  day_limit Int?
+  blackout_dates Json?
+  low_manpower_dates Json?
+
+  CourseConfig CourseConfig[]
+}
+
+model Programme {
+  programme_name String @id @unique
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  Course Course[]
+}
+
+model Course {
+  course_name String @id @unique
+  programme_name String // FK
+  course_code String
+  delivery_mode DeliveryMode
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  CourseConfig CourseConfig[]
+  Programme Programme @relation(fields: [programme_name], references: [programme_name])
+}
+
+model CourseConfig {
+  course_name String // FK
+  fy String // FK
+  days_per_run Int
+  runs_per_year Int
+  course_fees Float?
+  start_time DateTime? @db.Time(5)
+  end_time DateTime? @db.Time(5)
+  days_to_avoid Int[]
+  avoid_month_start Boolean
+  avoid_month_end Boolean
+  split Int[]
+  trainers Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  FiscalYear FiscalYear @relation(fields: [fy], references: [fy])
+  Course Course @relation(fields: [course_name], references: [course_name])
+  CourseRun CourseRun[]
+  @@id([course_name, fy])
+  @@unique([course_name, fy])
+}
+
+model CourseRun {
+  run Int
+  course_name String // FK
+  fy String // FK
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  CourseConfig CourseConfig @relation(fields: [course_name, fy], references: [course_name, fy], onDelete: Cascade)
+  CourseSegment CourseSegment[]
+  @@id([run, course_name, fy])
+  @@unique([run, course_name, fy])
+}
+
+model CourseSegment {
+  segment Int
+  course_name String // FK
+  fy String // FK
+  run Int // FK
+  dates DateTime[] @db.Timestamp(5)
+  status Status @default(GENERATED)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  CourseRun CourseRun @relation(fields: [run, fy, course_name], references: [run, fy, course_name], onDelete: Cascade)
+  Assignment Assignment[]
+  @@unique([segment, course_name, fy, run])
+  @@id([segment, course_name, fy, run])
+}
+
+model User {
+  user_name String @id @unique
+  password String // hashed
+  email String @unique
+  role Role @default(TRAINER) // Admin or Trainer
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Assignment Assignment[]
+}
+
+model Assignment {
+  user_name String // FK
+  segment Int // FK
+  course_name String // FK
+  fy String // FK
+  run Int // FK
+  assignment_status Status @default(GENERATED)
+  decline_reason String? 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  User User @relation(fields: [user_name], references: [user_name])
+  CourseSegment CourseSegment @relation(fields: [segment, course_name, fy, run], references: [segment, course_name, fy, run], onDelete: Cascade)
+  Notification Notification[]
+  @@unique([user_name, segment, course_name, fy, run])
+  @@id([user_name, segment, course_name, fy, run])
+}
+
+model Notification {
+  time_sent DateTime @db.Time(5)
+  user_name String // FK
+  segment Int // FK
+  course_name String // FK
+  fy String // FK
+  run Int // FK
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Assignment Assignment @relation(fields: [user_name, segment, course_name, fy, run], references: [user_name, segment, course_name, fy, run], onDelete: Cascade)
+  @@unique([time_sent, user_name, segment, course_name, fy, run])
+  @@id([time_sent, user_name, segment, course_name, fy, run])
+}

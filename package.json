@@ -1,0 +1,140 @@
+{
+  "name": "projectplanner-backend",
+  "version": "0.0.1",
+  "description": "ProjectPlanner developed by AcademyHeroes ",
+  "author": "AcademyHeroes",
+  "private": true,
+  "license": "UNLICENSED",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "seed": "dotenv -e .env.test -- npx prisma db seed",
+    "studio:local": "dotenv -e .env.test -- npx prisma studio",
+    "migrate:seed": "rm -rf ./prisma/migrations && sleep 1 && dotenv -e .env.test -- npx prisma migrate dev --name init && sleep 2 && npx prisma generate",
+    "migrate:local": "rm -rf ./prisma/migrations && sleep 1 && dotenv -e .env.test -- npx prisma migrate dev --name init --skip-seed flag && sleep 3 && npx prisma generate",
+    "start:local": "dotenv -e .env.test -- yarn start:dev",
+    "prisma:dev:deploy": "prisma migrate deploy",
+    "start:projectplanner": "node dist/src/main",
+    "start:dev:migrate:projectplanner": "yarn prisma:dev:deploy && yarn start:dev",
+    "start:prod:migrate:projectplanner": "yarn prisma:dev:deploy && yarn start:projectplanner",
+    "db:dev:rm": "docker compose rm dev-db -s -f -v",
+    "db:dev:up": "docker compose up dev-db -d",
+    "db:dev:restart": "yarn db:dev:rm && yarn db:dev:up && sleep 1 && yarn prisma:dev:deploy",
+    "prisma:test:deploy": "dotenv -e .env.test -- prisma migrate deploy",
+    "db:test:rm": "docker compose rm test-db -s -f -v",
+    "db:test:up": "docker compose up test-db -d",
+    "db:test:restart": "yarn db:test:rm && yarn db:test:up && sleep 1 && yarn prisma:test:deploy",
+    "prebuild": "rimraf dist",
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest /test",
+    "test:watch": "jest /test --watch",
+    "test:cov": "jest /test --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "pretest:e2e": "yarn db:test:restart",
+    "test:e2e": "dotenv -e .env.test -- jest --watch --no-cache --config ./test/jest-e2e.json",
+    "test:ci": "jest /test --ci --reporters=default",
+    "execute-husky": "npx husky install && npx husky add .husky/pre-commit \"npx --no-install lint-staged \nyarn test\""
+  },
+  "dependencies": {
+    "@jest-mock/express": "^2.0.1",
+    "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/axios": "^0.1.0",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/config": "^1.1.6",
+    "@nestjs/core": "^8.0.0",
+    "@nestjs/jwt": "^8.0.0",
+    "@nestjs/passport": "^8.1.0",
+    "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/swagger": "^6.0.5",
+    "@prisma/client": "^3.8.1",
+    "@types/multer": "^1.4.7",
+    "argon2": "^0.28.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "ejs": "^3.1.8",
+    "exceljs": "^4.3.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "nodemailer": "^6.8.0",
+    "passport": "^0.5.2",
+    "passport-jwt": "^4.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.2.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^8.0.0",
+    "@nestjs/schematics": "^8.0.0",
+    "@nestjs/testing": "^8.0.0",
+    "@types/express": "^4.17.13",
+    "@types/jest": "27.0.2",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^16.0.0",
+    "@types/passport-jwt": "^3.0.6",
+    "@types/supertest": "^2.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "dotenv-cli": "^6.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.2.5",
+    "pactum": "^3.1.3",
+    "prettier": "^2.7.1",
+    "prisma": "^3.8.1",
+    "source-map-support": "^0.5.20",
+    "supertest": "^6.1.3",
+    "ts-jest": "^27.0.3",
+    "ts-loader": "^9.2.3",
+    "ts-node": "^10.0.0",
+    "tsconfig-paths": "^3.10.1",
+    "typescript": "^4.3.5"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s",
+      "!<rootDir>/interfaces/*",
+      "!<rootDir>/**/*.module.ts",
+      "!<rootDir>/**/*.config.ts",
+      "!<rootDir>/**/dto/index.ts",
+      "!<rootDir>/prisma/*",
+      "!<rootDir>/main.ts",
+      "!<rootDir>/app.module.ts",
+      "!<rootDir>/data-ingestion/*"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
+  "lint-staged": {
+    "**/*.{ts,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}
