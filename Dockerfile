@@ -15,9 +15,11 @@ RUN yarn install
 # COPY
 COPY . .
 
-RUN yarn build
 # Generate Prisma client
+RUN apk add --update --no-cache openssl1.1-compat
 RUN npx prisma generate
+
+RUN yarn build
 
 # PRODUCTION
 FROM node:alpine as production
